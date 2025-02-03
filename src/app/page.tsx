@@ -5,7 +5,7 @@ import { FaPlus, FaFile, FaTrash } from "react-icons/fa";
 
 const Sidebar = ({ onSelect, files, addFile }) => {
   return (
-    <aside className="w-64 h-screen bg-white p-4 border-r shadow-md">
+    <aside className="w-64 h-screen bg-white p-4">
       <h2 className="text-xl font-helvetica font-bold text-gray-700">Files</h2>
       <button
         onClick={addFile}
@@ -30,15 +30,17 @@ const Sidebar = ({ onSelect, files, addFile }) => {
 };
 
 const Page = () => {
-  const [todos, setTodos] = useState({});
-  const [doneTodos, setDoneTodos] = useState({});
+  const [todos, setTodos] = useState(() => JSON.parse(localStorage.getItem("todos")) || {});
+  const [doneTodos, setDoneTodos] = useState(() => JSON.parse(localStorage.getItem("doneTodos")) || {});
   const [newTodo, setNewTodo] = useState("");
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState(() => JSON.parse(localStorage.getItem("files")) || []);
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
-    setFiles([]); 
-  }, []);
+    localStorage.setItem("files", JSON.stringify(files));
+    localStorage.setItem("todos", JSON.stringify(todos));
+    localStorage.setItem("doneTodos", JSON.stringify(doneTodos));
+  }, [files, todos, doneTodos]);
 
   const addFile = () => {
     const newFileName = `File ${files.length + 1}`;
@@ -113,7 +115,7 @@ const Page = () => {
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="border p-2 rounded flex-1"
+                className="border p-2 rounded flex-1 text-black"
                 placeholder="Enter a new task..."
               />
               <button
