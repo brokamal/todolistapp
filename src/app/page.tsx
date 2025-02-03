@@ -35,6 +35,7 @@ const Page = () => {
   const [newTodo, setNewTodo] = useState("");
   const [files, setFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [subtasks, setSubtasks] = useState({});
 
   useEffect(() => {
     setFiles([]); 
@@ -54,6 +55,11 @@ const Page = () => {
       return updated;
     });
     setDoneTodos((prev) => {
+      const updated = { ...prev };
+      delete updated[selectedFile];
+      return updated;
+    });
+    setSubtasks((prev) => {
       const updated = { ...prev };
       delete updated[selectedFile];
       return updated;
@@ -92,6 +98,17 @@ const Page = () => {
     }
   };
 
+  const addSubtask = (todoIndex, subtaskText) => {
+    if (!subtaskText.trim() || !selectedFile) return;
+    setSubtasks((prev) => ({
+      ...prev,
+      [selectedFile]: {
+        ...(prev[selectedFile] || {}),
+        [todoIndex]: [...(prev[selectedFile]?.[todoIndex] || []), subtaskText],
+      },
+    }));
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} />
@@ -125,29 +142,19 @@ const Page = () => {
             </div>
             <ul className="mt-4 space-y-2">
               {(todos[selectedFile] || []).map((todo, index) => (
-                <li key={index} className="flex items-center gap-2 text-gray-700">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4"
-                    onChange={() => toggleTodo(index)}
-                  />
+                <li key={index} className="text-gray-700 cursor-pointer" onClick={() => addSubtask(index, prompt("Enter subtask:"))}>
+                  <input type="checkbox" className="w-4 h-4" onChange={() => toggleTodo(index)} />
                   <span>{todo.text}</span>
+                  {subtasks[selectedFile]?.[index]?.length > 0 && (
+                    <ul className="ml-6 list-disc">
+                      {subtasks[selectedFile][index].map((subtask, subIndex) => (
+                        <li key={subIndex} className="text-gray-600">{subtask}</li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               ))}
             </ul>
-            {doneTodos[selectedFile]?.length > 0 && (
-              <div className="mt-6">
-                <h2 className="text-lg font-helvetica text-gray-600">Done</h2>
-                <ul className="mt-2 space-y-2">
-                  {doneTodos[selectedFile].map((todo, index) => (
-                    <li key={index} className="flex items-center gap-2 text-gray-500 line-through">
-                      <input type="checkbox" className="w-4 h-4" checked disabled />
-                      <span>{todo.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
       </main>
