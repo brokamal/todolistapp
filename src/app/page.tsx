@@ -3,16 +3,28 @@
 import React, { useState, useEffect } from "react";
 import { FaPlus, FaFile, FaTrash } from "react-icons/fa";
 
-const Sidebar = ({ onSelect, files, addFile }) => {
+const Sidebar = ({ onSelect, files, addFile, newFileName, setNewFileName }) => {
   return (
-    <aside className="w-64 h-screen bg-grey-100  p-4">
+    <aside className="w-64 h-screen bg-white p-4">
       <h2 className="text-xl font-helvetica font-bold text-black">Files</h2>
-      <button
-        onClick={addFile}
-        className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4 flex items-center justify-center gap-2 hover:bg-blue-600 transition"
-      >
-        <FaPlus /> Add File
-      </button>
+      <div className="flex gap-2 mt-4">
+      <input
+  type="text"
+  value={newFileName}
+  onChange={(e) => setNewFileName(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") addFile();
+  }}
+  className="border p-2 rounded flex-1 text-black"
+  placeholder="Enter file name..."
+/>
+        <button
+          onClick={addFile}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+        >
+          <FaPlus />
+        </button>
+      </div>
       <div className="mt-4 space-y-2">
         {files.map((file, index) => (
           <div
@@ -29,6 +41,9 @@ const Sidebar = ({ onSelect, files, addFile }) => {
   );
 };
 
+
+
+
 const Page = () => {
   const [todos, setTodos] = useState(() => JSON.parse(localStorage.getItem("todos")) || {});
   const [doneTodos, setDoneTodos] = useState(() => JSON.parse(localStorage.getItem("doneTodos")) || {});
@@ -42,10 +57,17 @@ const Page = () => {
     localStorage.setItem("doneTodos", JSON.stringify(doneTodos));
   }, [files, todos, doneTodos]);
 
-  const addFile = () => {
-    const newFileName = `File ${files.length + 1}`;
+const [newFileName, setNewFileName] = useState("");
+
+const addFile = () => {
+  if (newFileName.trim() && !files.includes(newFileName)) {
     setFiles([...files, newFileName]);
-  };
+    setNewFileName("");
+  } else if (files.includes(newFileName)) {
+    alert("File name already exists!");
+  }
+};
+
 
   const deleteFile = () => {
     if (!selectedFile) return;
@@ -97,8 +119,7 @@ const Page = () => {
   return (
 <div className="flex bg-white min-h-screen">
   {/* Sidebar stays on the left */}
-  <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} />
-
+  <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} newFileName={newFileName} setNewFileName={setNewFileName} />
   {/* Main content directly next to the sidebar */}
   <div className="flex flex-1">
     <main className="bg-white  rounded-lg p-6 w-[80%] max-w-4xl h-screen overflow-y-auto relative">
