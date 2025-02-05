@@ -1,6 +1,6 @@
 # Todo 
 - Make more keyboard binding friendly. Less cursor.
-``
+- Beautify AI lol
 
 
 
