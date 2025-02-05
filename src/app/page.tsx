@@ -5,7 +5,7 @@ import { FaPlus, FaFile, FaTrash } from "react-icons/fa";
 
 const Sidebar = ({ onSelect, files, addFile }) => {
   return (
-    <aside className="w-64 h-screen bg-white p-4">
+    <aside className="w-64 h-screen bg-grey-100  p-4">
       <h2 className="text-xl font-helvetica font-bold text-black">Files</h2>
       <button
         onClick={addFile}
@@ -95,13 +95,13 @@ const Page = () => {
   };
 
   return (
-<div className="flex bg-gray-100 min-h-screen">
+<div className="flex bg-white min-h-screen">
   {/* Sidebar stays on the left */}
   <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} />
 
   {/* Main content directly next to the sidebar */}
   <div className="flex flex-1">
-    <main className="bg-white shadow-lg rounded-lg p-6 w-[80%] max-w-4xl h-screen overflow-y-auto relative">
+    <main className="bg-white  rounded-lg p-6 w-[80%] max-w-4xl h-screen overflow-y-auto relative">
       {selectedFile && (
         <button
           onClick={deleteFile}
