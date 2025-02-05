@@ -1,38 +1,27 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { FaPlus, FaFile, FaTrash, FaEdit } from "react-icons/fa";
+import { FaPlus, FaFile, FaTrash } from "react-icons/fa";
 
-const Sidebar = ({ onSelect, files, createFile, renameFile, newFileName, setNewFileName }) => {
+const Sidebar = ({ onSelect, files, addFile }) => {
   return (
-    <aside className="w-120 h-screen bg-white p-4">
+    <aside className="w-64 h-screen bg-white p-4">
       <h2 className="text-xl font-helvetica font-bold text-gray-700">Files</h2>
-      <div className="mt-4 flex gap-2">
-        <input
-          type="text"
-          value={newFileName}
-          onChange={(e) => setNewFileName(e.target.value)}
-          className="border p-2 rounded flex-1 text-black"
-          placeholder="Enter file name..."
-        />
-        <button
-          onClick={createFile}
-          className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition"
-        >
-          <FaPlus />
-        </button>
-      </div>
+      <button
+        onClick={addFile}
+        className="w-full bg-blue-500 text-white py-2 px-4 rounded mt-4 flex items-center justify-center gap-2 hover:bg-blue-600 transition"
+      >
+        <FaPlus /> Add File
+      </button>
       <div className="mt-4 space-y-2">
         {files.map((file, index) => (
           <div
             key={index}
-            className="flex items-center justify-between text-gray-700 cursor-pointer p-2 hover:bg-gray-200 rounded transition"
+            className="flex items-center text-gray-700 cursor-pointer p-2 hover:bg-gray-200 rounded transition"
+            onClick={() => onSelect(file)}
           >
-            <div onClick={() => onSelect(file)} className="flex items-center">
-              <FaFile />
-              <span className="truncate ml-2">{file}</span>
-            </div>
-            <FaEdit className="cursor-pointer text-blue-500" onClick={() => renameFile(file)} />
+            <FaFile />
+            <span className="truncate ml-2">{file}</span>
           </div>
         ))}
       </div>
@@ -46,7 +35,6 @@ const Page = () => {
   const [newTodo, setNewTodo] = useState("");
   const [files, setFiles] = useState(() => JSON.parse(localStorage.getItem("files")) || []);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [newFileName, setNewFileName] = useState("");
 
   useEffect(() => {
     localStorage.setItem("files", JSON.stringify(files));
@@ -54,31 +42,9 @@ const Page = () => {
     localStorage.setItem("doneTodos", JSON.stringify(doneTodos));
   }, [files, todos, doneTodos]);
 
-  const createFile = () => {
-    if (newFileName.trim() && !files.includes(newFileName)) {
-      setFiles([...files, newFileName]);
-      setNewFileName("");
-    }
-  };
-
-  const renameFile = (oldName) => {
-    const newName = prompt("Enter new file name:", oldName);
-    if (newName && newName !== oldName) {
-      setFiles(files.map((file) => (file === oldName ? newName : file)));
-      setTodos((prev) => {
-        const updated = { ...prev };
-        updated[newName] = updated[oldName];
-        delete updated[oldName];
-        return updated;
-      });
-      setDoneTodos((prev) => {
-        const updated = { ...prev };
-        updated[newName] = updated[oldName];
-        delete updated[oldName];
-        return updated;
-      });
-      if (selectedFile === oldName) setSelectedFile(newName);
-    }
+  const addFile = () => {
+    const newFileName = `File ${files.length + 1}`;
+    setFiles([...files, newFileName]);
   };
 
   const deleteFile = () => {
@@ -107,16 +73,30 @@ const Page = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      addTodo();
+    }
+  };
+
+  const toggleTodo = (index) => {
+    const updatedTodos = [...(todos[selectedFile] || [])];
+    updatedTodos[index].completed = !updatedTodos[index].completed;
+    if (updatedTodos[index].completed) {
+      setDoneTodos((prev) => ({
+        ...prev,
+        [selectedFile]: [...(prev[selectedFile] || []), updatedTodos[index]],
+      }));
+      setTodos((prev) => ({
+        ...prev,
+        [selectedFile]: updatedTodos.filter((_, i) => i !== index),
+      }));
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar 
-        onSelect={setSelectedFile} 
-        files={files} 
-        createFile={createFile} 
-        renameFile={renameFile} 
-        newFileName={newFileName} 
-        setNewFileName={setNewFileName} 
-      />
+      <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} />
       <main className="flex-1 p-6 relative">
         {selectedFile && (
           <button
@@ -134,6 +114,7 @@ const Page = () => {
                 type="text"
                 value={newTodo}
                 onChange={(e) => setNewTodo(e.target.value)}
+                onKeyDown={handleKeyDown}
                 className="border p-2 rounded flex-1 text-black"
                 placeholder="Enter a new task..."
               />
@@ -144,6 +125,32 @@ const Page = () => {
                 <FaPlus />
               </button>
             </div>
+            <h2 className="text-xl font-helvetica text-black">Todo</h2>
+            <ul className="mt-4 space-y-2">
+              {(todos[selectedFile] || []).map((todo, index) => (
+                <li key={index} className="flex items-center gap-2 text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4"
+                    onChange={() => toggleTodo(index)}
+                  />
+                  <span>{todo.text}</span>
+                </li>
+              ))}
+            </ul>
+            {doneTodos[selectedFile]?.length > 0 && (
+              <div className="mt-6">
+                <h2 className="text-lg font-helvetica text-black">Done</h2>
+                <ul className="mt-2 space-y-2">
+                  {doneTodos[selectedFile].map((todo, index) => (
+                    <li key={index} className="flex items-center gap-2 text-gray-500 line-through">
+                      <input type="checkbox" className="w-4 h-4" checked disabled />
+                      <span>{todo.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
       </main>
