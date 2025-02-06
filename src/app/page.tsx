@@ -5,22 +5,22 @@ import { FaPlus, FaFile, FaTrash } from "react-icons/fa";
 
 const Sidebar = ({ onSelect, files, addFile, newFileName, setNewFileName }) => {
   return (
-    <aside className="w-64 h-screen bg-white p-4">
-      <h2 className="text-xl font-helvetica font-bold text-black">Files</h2>
+    <aside className="w-100 h-screen bg-[#f5f0dc] p-4">
+      <h2 className="text-2xl font-helvetica font-bold text-[#5a4632]">Files</h2>
       <div className="flex gap-2 mt-4">
-      <input
-  type="text"
-  value={newFileName}
-  onChange={(e) => setNewFileName(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") addFile();
-  }}
-  className="border p-2 rounded flex-1 text-black"
-  placeholder="Enter file name..."
-/>
+        <input
+          type="text"
+          value={newFileName}
+          onChange={(e) => setNewFileName(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") addFile();
+          }}
+          className="border p-2 rounded flex-1 text-[#5a4632] bg-[#ede3c7]"
+          placeholder="Enter file name..."
+        />
         <button
           onClick={addFile}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+          className="bg-[#a67c52] text-white px-4 py-2 rounded hover:bg-[#8a6241] transition"
         >
           <FaPlus />
         </button>
@@ -29,7 +29,7 @@ const Sidebar = ({ onSelect, files, addFile, newFileName, setNewFileName }) => {
         {files.map((file, index) => (
           <div
             key={index}
-            className="flex items-center text-black cursor-pointer p-2 hover:bg-gray-200 rounded transition"
+            className="flex items-center text-[#5a4632] cursor-pointer p-2 hover:bg-[#e0d2b5] rounded transition"
             onClick={() => onSelect(file)}
           >
             <FaFile />
@@ -40,9 +40,6 @@ const Sidebar = ({ onSelect, files, addFile, newFileName, setNewFileName }) => {
     </aside>
   );
 };
-
-
-
 
 const Page = () => {
   const [todos, setTodos] = useState(() => JSON.parse(localStorage.getItem("todos")) || {});
@@ -57,17 +54,16 @@ const Page = () => {
     localStorage.setItem("doneTodos", JSON.stringify(doneTodos));
   }, [files, todos, doneTodos]);
 
-const [newFileName, setNewFileName] = useState("");
+  const [newFileName, setNewFileName] = useState("");
 
-const addFile = () => {
-  if (newFileName.trim() && !files.includes(newFileName)) {
-    setFiles([...files, newFileName]);
-    setNewFileName("");
-  } else if (files.includes(newFileName)) {
-    alert("File name already exists!");
-  }
-};
-
+  const addFile = () => {
+    if (newFileName.trim() && !files.includes(newFileName)) {
+      setFiles([...files, newFileName]);
+      setNewFileName("");
+    } else if (files.includes(newFileName)) {
+      alert("File name already exists!");
+    }
+  };
 
   const deleteFile = () => {
     if (!selectedFile) return;
@@ -117,73 +113,64 @@ const addFile = () => {
   };
 
   return (
-<div className="flex bg-white min-h-screen">
-  {/* Sidebar stays on the left */}
-  <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} newFileName={newFileName} setNewFileName={setNewFileName} />
-  {/* Main content directly next to the sidebar */}
-  <div className="flex flex-1">
-    <main className="bg-white  rounded-lg p-6 w-[80%] max-w-4xl h-screen overflow-y-auto relative">
-      {selectedFile && (
-        <button
-          onClick={deleteFile}
-          className="absolute top-6 right-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
-        >
-          <FaTrash />
-        </button>
-      )}
-      <h1 className="text-2xl font-helvetica font-bold text-black">{selectedFile || "Select a File"}</h1>
-      {selectedFile && (
-        <div className="mt-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newTodo}
-              onChange={(e) => setNewTodo(e.target.value)}
-              onKeyDown={handleKeyDown}
-              className="border p-2 rounded flex-1 text-black"
-              placeholder="Enter a new task..."
-            />
+    <div className="flex bg-[#f5f0dc] min-h-screen">
+      <Sidebar onSelect={setSelectedFile} files={files} addFile={addFile} newFileName={newFileName} setNewFileName={setNewFileName} />
+      <div className="flex flex-1">
+        <main className="bg-[#f5f0dc] rounded-lg p-6 w-[80%] max-w-4xl h-screen overflow-y-auto relative">
+          {selectedFile && (
             <button
-              onClick={addTodo}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+              onClick={deleteFile}
+              className="absolute top-6 right-6 bg-[#d9534f] text-white px-4 py-2 rounded hover:bg-[#c9302c] transition"
             >
-              <FaPlus />
+              <FaTrash />
             </button>
-          </div>
-          <br>
-          </br>
-          <h2 className="text-xl font-helvetica font-bold text-black">Todo</h2>
-          <ul className="mt-4 space-y-2">
-            {(todos[selectedFile] || []).map((todo, index) => (
-              <li key={index} className="flex items-center gap-2 text-gray-700">
+          )}
+          <h1 className="text-2xl font-helvetica font-bold text-[#5a4632]">{selectedFile || "Select a File"}</h1>
+          {selectedFile && (
+            <div className="mt-4">
+              <div className="flex gap-2">
                 <input
-                  type="checkbox"
-                  className="w-4 h-4"
-                  onChange={() => toggleTodo(index)}
+                  type="text"
+                  value={newTodo}
+                  onChange={(e) => setNewTodo(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="border p-2 rounded flex-1 text-[#5a4632] bg-[#ede3c7]"
+                  placeholder="Enter a new task..."
                 />
-                <span>{todo.text}</span>
-              </li>
-            ))}
-          </ul>
-          {doneTodos[selectedFile]?.length > 0 && (
-            <div className="mt-6">
-              <h2 className="text-lg font-helvetica font-bold text-black">Done</h2>
-              <ul className="mt-2 space-y-2">
-                {doneTodos[selectedFile].map((todo, index) => (
-                  <li key={index} className="flex items-center gap-2 text-gray-500 line-through">
-                    <input type="checkbox" className="w-4 h-4" checked disabled />
+                <button
+                  onClick={addTodo}
+                  className="bg-[#a67c52] text-white px-4 py-2 rounded hover:bg-[#8a6241] transition"
+                >
+                  <FaPlus />
+                </button>
+              </div>
+              <h2 className="text-xl font-helvetica font-bold text-[#5a4632] mt-4">Todo</h2>
+              <ul className="mt-4 space-y-2">
+                {(todos[selectedFile] || []).map((todo, index) => (
+                  <li key={index} className="flex items-center gap-2 text-[#5a4632]">
+                    <input type="checkbox" className="w-4 h-4" onChange={() => toggleTodo(index)} />
                     <span>{todo.text}</span>
                   </li>
                 ))}
               </ul>
+              {doneTodos[selectedFile]?.length > 0 && (
+                <div className="mt-6">
+                  <h2 className="text-lg font-helvetica font-bold text-[#5a4632]">Done</h2>
+                  <ul className="mt-2 space-y-2">
+                    {doneTodos[selectedFile].map((todo, index) => (
+                      <li key={index} className="flex items-center gap-2 text-[#5a4632] line-through">
+                        <input type="checkbox" className="w-4 h-4" checked disabled />
+                        <span>{todo.text}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
-    </main>
-  </div>
-</div>
-
+        </main>
+      </div>
+    </div>
   );
 };
 
